@@ -1,32 +1,37 @@
-const contacts = require('./contacts')
-const argv = require('yargs').argv;
+const UserService = require('./api/server')
+
+new UserService().start()
 
 
-async function invokeAction({ action, id, name, email, phone }) {
-    switch (action) {
-        case 'list':
-            const contactsList = await contacts.listContacts()
-            console.table(contactsList)
-            break;
+// const contacts = require('./api/contacts/contacts')
+// const argv = require('yargs').argv;
 
-        case 'get':
-            const getUser = await contacts.getContactById(id)
-            console.log(getUser)
-            break;
 
-        case 'add':
-            await contacts.addContact(name, email, phone)
-            console.log(`contact ${name} was added`)
-            break;
+// async function invokeAction({ action, id, name, email, phone }) {
+//     switch (action) {
+//         case 'list':
+//             const contactsList = await contacts.listContacts()
+//             console.table(contactsList)
+//             break;
 
-        case 'remove':
-            await contacts.removeContact(id)
-            console.log(`contact with id-${id} was removed`)
-            break;
+//         case 'get':
+//             const getUser = await contacts.getContactById(id)
+//             console.log(getUser)
+//             break;
 
-        default:
-            console.warn('\x1B[31m Unknown action type!');
-    }
-}
+//         case 'add':
+//             await contacts.addContact(name, email, phone)
+//             console.log(`contact ${name} was added`)
+//             break;
 
-invokeAction(argv);
+//         case 'remove':
+//             await contacts.removeContact(id)
+//             console.log(`contact with id-${id} was removed`)
+//             break;
+
+//         default:
+//             console.warn('\x1B[31m Unknown action type!');
+//     }
+// }
+
+// invokeAction(argv);
