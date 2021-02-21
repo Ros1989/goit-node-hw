@@ -72,7 +72,7 @@ class ContactsController {
             name: Joi.string(),
             email: Joi.string(),
             phone: Joi.string()
-        })
+        }).min(1)
         ContactsController.checkValidationError(updateSchemaValidator, req, res, next)
 
     }
