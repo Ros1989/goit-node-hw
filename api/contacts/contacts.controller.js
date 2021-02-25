@@ -1,22 +1,22 @@
-const Joi = require('joi')
+const Joi = require('joi');
+const ContactModel = require('./contacts.model')
 
-const contacts = require('./contacts.js')
 
 class ContactsController {
 
     async getContacts(req, res, next) {
         try {
-            const contactsList = await contacts.listContacts()
+            const contactsList = await ContactModel.find()
             return res.send(contactsList)
         } catch (err) {
             next(err)
         }
     }
+
     async getContactById(req, res, next) {
         try {
-            const contactId = Number.parseInt(req.params.contactId)
-            const contact = await contacts.getContactById(contactId)
-            return contact ? res.send(contact) : res.status(404).send({ message: "Not found" })
+            const contact = await ContactModel.findById(req.params.contactId)
+            return contact ? res.status(200).send(contact) : res.status(404).send({ message: "Not found" })
         } catch (err) {
             next(err)
         }
@@ -24,8 +24,7 @@ class ContactsController {
 
     async createContact(req, res, next) {
         try {
-            const { name, email, phone } = req.body
-            await contacts.addContact(name, email, phone)
+            await ContactModel.create(req.body)
             return res.status(201).send({ "message": "Contact created" })
         } catch (err) {
             next(err)
@@ -34,9 +33,8 @@ class ContactsController {
 
     async updateContact(req, res, next) {
         try {
-            const id = Number.parseInt(req.params.contactId)
-            const contactToUpdate = await contacts.updateContact(id, req.body)
-            return contactToUpdate ?
+            const contact = await ContactModel.findByIdAndUpdate(req.params.contactId, req.body)
+            return contact ?
                 res.status(200).send({ "message": "contact updated" }) :
                 res.status(404).send({ "message": "Not found" })
 
@@ -47,13 +45,11 @@ class ContactsController {
 
     async deleteContact(req, res, next) {
         try {
-            const contactId = Number.parseInt(req.params.contactId)
-            const contactsList = await contacts.removeContact(contactId)
-
-            return contactsList ?
-                res.status(200).send({ "message": "contact deleted" }) :
-                res.status(404).send({ "message": 'Not found' })
-
+            const contact = await ContactModel.findByIdAndDelete(req.params.contactId)
+            if (!contact) {
+                return res.status(404).send({ "message": 'Not found' })
+            }
+            return res.status(200).send({ "message": "contact deleted" })
         } catch (err) {
             next(err)
         }
@@ -63,7 +59,10 @@ class ContactsController {
         const createSchemaValidator = Joi.object({
             name: Joi.string().required(),
             email: Joi.string().required(),
-            phone: Joi.string().required()
+            phone: Joi.string().required(),
+            subscription: Joi.string().required(),
+            password: Joi.string().required(),
+            // token: Joi.allow(),
         })
         ContactsController.checkValidationError(createSchemaValidator, req, res, next)
     }
@@ -71,7 +70,10 @@ class ContactsController {
         const updateSchemaValidator = Joi.object({
             name: Joi.string(),
             email: Joi.string(),
-            phone: Joi.string()
+            phone: Joi.string(),
+            subscription: Joi.string(),
+            password: Joi.string(),
+            token: Joi.string(),
         }).min(1)
         ContactsController.checkValidationError(updateSchemaValidator, req, res, next)
 
